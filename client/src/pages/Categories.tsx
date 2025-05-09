@@ -1,43 +1,22 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { apiRequest } from '../lib/queryClient';
-import CategoryCard from '../components/CategoryCard';
 import { FaArrowLeft } from 'react-icons/fa';
 import { MdCompost, MdNaturePeople, MdOutlineEco, MdRecycling } from 'react-icons/md';
 import { GiWheat, GiPlantRoots, GiFruitTree } from 'react-icons/gi';
 
-interface Category {
-  id: number;
-  name: string;
-  iconName: string;
-  itemCount: number;
-}
-
 const Categories = () => {
   const [, setLocation] = useLocation();
 
-  // Fetch categories
-  const { data: categories = [], isLoading, error } = useQuery({
-    queryKey: ['/api/categories'],
-    queryFn: async () => {
-      try {
-        const response = await apiRequest('/api/categories');
-        return response as Category[];
-      } catch (error) {
-        // For demo purposes, return mock data if API fails
-        return [
-          { id: 1, name: 'Compost', iconName: 'compost', itemCount: 15 },
-          { id: 2, name: 'Plant Waste', iconName: 'plant', itemCount: 8 },
-          { id: 3, name: 'Crop Residue', iconName: 'wheat', itemCount: 12 },
-          { id: 4, name: 'Fruit Waste', iconName: 'fruit', itemCount: 9 },
-          { id: 5, name: 'Organic Waste', iconName: 'eco', itemCount: 17 },
-          { id: 6, name: 'Bio Fertilizer', iconName: 'nature', itemCount: 6 },
-          { id: 7, name: 'Recycled', iconName: 'recycle', itemCount: 10 },
-        ];
-      }
-    },
-  });
+  // Mock categories data
+  const categoriesList = [
+    { id: 1, name: 'Compost', iconName: 'compost', itemCount: 15 },
+    { id: 2, name: 'Plant Waste', iconName: 'plant', itemCount: 8 },
+    { id: 3, name: 'Crop Residue', iconName: 'wheat', itemCount: 12 },
+    { id: 4, name: 'Fruit Waste', iconName: 'fruit', itemCount: 9 },
+    { id: 5, name: 'Organic Waste', iconName: 'eco', itemCount: 17 },
+    { id: 6, name: 'Bio Fertilizer', iconName: 'nature', itemCount: 6 },
+    { id: 7, name: 'Recycled', iconName: 'recycle', itemCount: 10 },
+  ];
 
   // Map category icon names to actual icons
   const getCategoryIcon = (iconName: string) => {
@@ -63,19 +42,11 @@ const Categories = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8 flex justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center mb-6">
         <button 
-          onClick={() => setLocation('/')}
+          onClick={() => setLocation('/home')}
           className="mr-4 text-gray-600 hover:text-gray-800"
         >
           <FaArrowLeft size={20} />
@@ -84,14 +55,22 @@ const Categories = () => {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 md:gap-8">
-        {categories.map(category => (
-          <CategoryCard
+        {categoriesList.map(category => (
+          <div 
             key={category.id}
-            id={category.id}
-            name={category.name}
-            icon={getCategoryIcon(category.iconName)}
-            count={category.itemCount}
-          />
+            className="cursor-pointer" 
+            onClick={() => setLocation(`/categories/${category.id}`)}
+          >
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-green-100 rounded-full flex items-center justify-center mb-2">
+                {getCategoryIcon(category.iconName)}
+              </div>
+              <span className="text-sm text-center font-medium text-gray-700">{category.name}</span>
+              {category.itemCount && (
+                <span className="text-xs text-gray-500 mt-1">{category.itemCount} items</span>
+              )}
+            </div>
+          </div>
         ))}
       </div>
     </div>

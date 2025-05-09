@@ -26,8 +26,13 @@ const Cart = () => {
   const { data: cartItems = [], isLoading, error } = useQuery({
     queryKey: ['/api/cart'],
     queryFn: async () => {
-      const response = await apiRequest('/api/cart');
-      return response as CartItemType[];
+      try {
+        const response = await apiRequest('/api/cart');
+        return response as CartItemType[];
+      } catch (error) {
+        console.error("Error fetching cart items:", error);
+        return [];
+      }
     },
   });
 
@@ -39,7 +44,7 @@ const Cart = () => {
   // Clear cart mutation
   const clearCartMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest('/api/cart/clear', {
+      return await apiRequest('/api/cart/clear', {
         method: 'DELETE',
       });
     },
@@ -62,7 +67,7 @@ const Cart = () => {
   // Checkout mutation
   const checkoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest('/api/checkout', {
+      return await apiRequest('/api/checkout', {
         method: 'POST',
       });
     },

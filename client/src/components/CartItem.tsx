@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../lib/queryClient';
-import { FaMinus, FaPlus, FaTrash } from 'react-icons/fa';
+import { useToast } from '@/hooks/use-toast';
+import { FaTrash, FaMinus, FaPlus } from 'react-icons/fa';
 
 interface CartItemProps {
   id: number;
@@ -22,11 +23,15 @@ const CartItem: React.FC<CartItemProps> = ({
   imageUrl,
   wasteType,
 }) => {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [itemQuantity, setItemQuantity] = useState(quantity);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const updateQuantity = async (newQuantity: number) => {
-    if (newQuantity < 1) return;
+    if (newQuantity < 1 || newQuantity > 99 || isUpdating) return;
     
+    setIsUpdating(true);
     try {
       await apiRequest(`/api/cart/${id}`, {
         method: 'PATCH',
@@ -34,64 +39,98 @@ const CartItem: React.FC<CartItemProps> = ({
         body: JSON.stringify({ quantity: newQuantity }),
       });
       
-      // Invalidate cart queries to refresh data
+      setItemQuantity(newQuantity);
       queryClient.invalidateQueries({ queryKey: ['/api/cart'] });
     } catch (error) {
-      console.error('Error updating cart item:', error);
+      toast({
+        title: "Error",
+        description: "Could not update quantity. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  const removeFromCart = async () => {
+  const removeItem = async () => {
     try {
       await apiRequest(`/api/cart/${id}`, {
         method: 'DELETE',
       });
       
-      // Invalidate cart queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['/api/cart'] });
+      toast({
+        title: "Item removed",
+        description: `${name} has been removed from your cart.`,
+      });
     } catch (error) {
-      console.error('Error removing cart item:', error);
+      toast({
+        title: "Error",
+        description: "Could not remove item. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <div className="flex items-center p-4 mb-3 bg-white rounded-lg shadow-sm">
-      <div 
-        className="w-16 h-16 bg-gray-200 rounded-md mr-4 flex-shrink-0"
-        style={imageUrl ? { backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover' } : {}}
-      />
-      
-      <div className="flex-grow">
-        <h3 className="font-semibold text-gray-800">{name}</h3>
-        <div className="flex items-center mt-1">
-          <span className="text-sm bg-yellow-100 px-2 py-1 rounded-md text-gray-700">{wasteType}</span>
-          <span className="ml-auto text-green-600 font-bold">₹{price}</span>
-        </div>
+    <div className="flex border-b border-gray-200 py-4 last:border-0">
+      {/* Product image */}
+      <div className="w-20 h-20 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
+        {imageUrl && (
+          <img 
+            src={imageUrl} 
+            alt={name} 
+            className="w-full h-full object-cover"
+          />
+        )}
       </div>
       
-      <div className="flex items-center ml-4">
-        <button 
-          onClick={() => updateQuantity(quantity - 1)}
-          className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-700 hover:bg-gray-200"
-        >
-          <FaMinus size={12} />
-        </button>
+      {/* Product info */}
+      <div className="ml-4 flex-grow">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="font-medium">{name}</h3>
+            <span className="text-sm text-gray-500">{wasteType}</span>
+          </div>
+          <div className="text-green-600 font-bold">₹{price}</div>
+        </div>
         
-        <span className="mx-3 w-8 text-center">{quantity}</span>
-        
-        <button 
-          onClick={() => updateQuantity(quantity + 1)}
-          className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-700 hover:bg-gray-200"
-        >
-          <FaPlus size={12} />
-        </button>
-        
-        <button 
-          onClick={removeFromCart}
-          className="ml-4 text-red-500 hover:text-red-700"
-        >
-          <FaTrash />
-        </button>
+        <div className="flex items-center justify-between mt-4">
+          {/* Quantity selector */}
+          <div className="flex items-center">
+            <button 
+              onClick={() => updateQuantity(itemQuantity - 1)}
+              disabled={isUpdating || itemQuantity <= 1}
+              className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+            >
+              <FaMinus size={12} />
+            </button>
+            
+            <span className="mx-3 font-medium">{itemQuantity}</span>
+            
+            <button 
+              onClick={() => updateQuantity(itemQuantity + 1)}
+              disabled={isUpdating || itemQuantity >= 99}
+              className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+            >
+              <FaPlus size={12} />
+            </button>
+          </div>
+          
+          {/* Subtotal and remove */}
+          <div className="flex items-center">
+            <div className="mr-4 text-sm">
+              Subtotal: <span className="font-semibold">₹{price * itemQuantity}</span>
+            </div>
+            
+            <button 
+              onClick={removeItem}
+              className="text-red-500 hover:text-red-700"
+            >
+              <FaTrash />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

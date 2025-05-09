@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../lib/queryClient';
 import ProductCard from '../components/ProductCard';
 import CategoryCard from '../components/CategoryCard';
-import { FaSearch, FaMicrophone, FaShoppingCart, FaHeart, FaBars, FaCamera } from 'react-icons/fa';
+import { FaSearch, FaMicrophone, FaShoppingCart, FaHeart, FaBars, FaCamera, 
+  FaHome, FaList, FaUser } from 'react-icons/fa';
 import { MdCompost, MdNaturePeople, MdOutlineEco, MdRecycling } from 'react-icons/md';
 import { GiWheat, GiPlantRoots, GiFruitTree } from 'react-icons/gi';
 import ilavaLogo from '../assets/ilava-logo.svg';
@@ -39,46 +40,60 @@ const NewHome = () => {
     }
   }, []);
 
+  // Define mock categories for now (will be replaced by API data later)
+  const mockCategories = [
+    { id: 1, name: 'Compost', iconName: 'compost' },
+    { id: 2, name: 'Plant Waste', iconName: 'plant' },
+    { id: 3, name: 'Crop Residue', iconName: 'wheat' },
+    { id: 4, name: 'Fruit Waste', iconName: 'fruit' },
+    { id: 5, name: 'Organic Waste', iconName: 'eco' },
+    { id: 6, name: 'Bio Fertilizer', iconName: 'nature' },
+    { id: 7, name: 'Recycled', iconName: 'recycle' },
+  ];
+  
   // Fetch categories
-  const { data: categories = [] } = useQuery({
+  const { data: categoriesData } = useQuery({
     queryKey: ['/api/categories'],
     queryFn: async () => {
       try {
         const response = await apiRequest('/api/categories');
         return response as Category[];
       } catch (error) {
-        // For demo, return mock data
-        return [
-          { id: 1, name: 'Compost', iconName: 'compost' },
-          { id: 2, name: 'Plant Waste', iconName: 'plant' },
-          { id: 3, name: 'Crop Residue', iconName: 'wheat' },
-          { id: 4, name: 'Fruit Waste', iconName: 'fruit' },
-          { id: 5, name: 'Organic Waste', iconName: 'eco' },
-          { id: 6, name: 'Bio Fertilizer', iconName: 'nature' },
-          { id: 7, name: 'Recycled', iconName: 'recycle' },
-        ];
+        console.error("Error fetching categories:", error);
+        return null;
       }
     },
+    enabled: false, // Disabled for now
   });
+  
+  // Use mock data for development
+  const categories = categoriesData || mockCategories;
+
+  // Define mock products
+  const mockProducts = [
+    { id: 1, name: 'Organic Compost', price: 1200, wasteType: 'Compost', description: 'Nutrient-rich compost for all your gardening needs', isFavorite: false },
+    { id: 2, name: 'Rice Husk Ash', price: 800, wasteType: 'Crop Residue', description: 'Perfect for soil amendment and concrete production', isFavorite: true },
+    { id: 3, name: 'Sugarcane Bagasse', price: 650, wasteType: 'Plant Waste', description: 'Versatile material for packaging and paper products', isFavorite: false },
+    { id: 4, name: 'Fruit Pulp Fertilizer', price: 950, wasteType: 'Fruit Waste', description: 'Organic fertilizer rich in essential nutrients', isFavorite: false },
+  ];
 
   // Fetch featured products
-  const { data: featuredProducts = [], isLoading: productsLoading } = useQuery({
+  const { data: productsData, isLoading: productsLoading } = useQuery({
     queryKey: ['/api/products/featured'],
     queryFn: async () => {
       try {
         const response = await apiRequest('/api/products/featured');
         return response as Product[];
       } catch (error) {
-        // For demo, return mock data
-        return [
-          { id: 1, name: 'Organic Compost', price: 1200, wasteType: 'Compost', description: 'Nutrient-rich compost for all your gardening needs', isFavorite: false },
-          { id: 2, name: 'Rice Husk Ash', price: 800, wasteType: 'Crop Residue', description: 'Perfect for soil amendment and concrete production', isFavorite: true },
-          { id: 3, name: 'Sugarcane Bagasse', price: 650, wasteType: 'Plant Waste', description: 'Versatile material for packaging and paper products', isFavorite: false },
-          { id: 4, name: 'Fruit Pulp Fertilizer', price: 950, wasteType: 'Fruit Waste', description: 'Organic fertilizer rich in essential nutrients', isFavorite: false },
-        ];
+        console.error("Error fetching featured products:", error);
+        return null;
       }
     },
+    enabled: false, // Disabled for now
   });
+  
+  // Use mock data for development
+  const featuredProducts = productsData || mockProducts;
 
   // Fetch cart count
   const { data: cartData } = useQuery({

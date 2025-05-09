@@ -1,82 +1,36 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useLocation, useRoute } from 'wouter';
-import { apiRequest } from '../lib/queryClient';
-import ProductCard from '../components/ProductCard';
-import { FaArrowLeft, FaFilter, FaSort } from 'react-icons/fa';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  imageUrl?: string;
-  wasteType: string;
-  description?: string;
-  isFavorite: boolean;
-}
-
-type SortOption = 'price-asc' | 'price-desc' | 'name-asc' | 'name-desc';
+import { FaArrowLeft, FaFilter, FaSort, FaHeart, FaRegHeart, FaCartPlus, FaShare } from 'react-icons/fa';
 
 const CategoryDetail = () => {
   const [, setLocation] = useLocation();
   const [, params] = useRoute('/categories/:id');
   const categoryId = params?.id ? parseInt(params.id) : 0;
   
-  const [sortOption, setSortOption] = useState<SortOption>('name-asc');
+  const [sortOption, setSortOption] = useState('name-asc');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Fetch category info
-  const { data: category, isLoading: categoryLoading } = useQuery({
-    queryKey: ['/api/categories', categoryId],
-    queryFn: async () => {
-      try {
-        const response = await apiRequest(`/api/categories/${categoryId}`);
-        return response;
-      } catch (error) {
-        // Return mock data for demo
-        return { 
-          id: categoryId, 
-          name: ['Compost', 'Plant Waste', 'Crop Residue', 'Fruit Waste', 'Organic Waste'][categoryId % 5] || 'Category',
-          description: 'Agricultural waste products in this category'
-        };
-      }
-    },
-    enabled: categoryId > 0,
-  });
+  // Mock category data
+  const categoryNames = ['Compost', 'Plant Waste', 'Crop Residue', 'Fruit Waste', 'Organic Waste'];
+  const category = { 
+    id: categoryId, 
+    name: categoryNames[categoryId % 5] || 'Category',
+    description: 'Agricultural waste products in this category'
+  };
 
-  // Fetch products in this category
-  const { data: products = [], isLoading: productsLoading } = useQuery({
-    queryKey: ['/api/categories', categoryId, 'products', { sort: sortOption, priceRange }],
-    queryFn: async () => {
-      try {
-        const response = await apiRequest(
-          `/api/categories/${categoryId}/products?sort=${sortOption}&minPrice=${priceRange[0]}&maxPrice=${priceRange[1]}`
-        );
-        return response as Product[];
-      } catch (error) {
-        // Return mock data for demo
-        const categoryNames = ['Compost', 'Plant Waste', 'Crop Residue', 'Fruit Waste', 'Organic Waste'];
-        const mockProducts: Product[] = Array(8).fill(0).map((_, i) => ({
-          id: i + 1,
-          name: `${categoryNames[categoryId % 5] || 'Product'} ${i + 1}`,
-          price: Math.floor(Math.random() * 1500) + 300,
-          wasteType: categoryNames[categoryId % 5] || 'Waste',
-          description: 'High-quality agricultural waste product for various uses',
-          isFavorite: false
-        }));
-        
-        // Sort mock products based on sort option
-        return sortProducts(mockProducts);
-      }
-    },
-    enabled: categoryId > 0,
-  });
-
-  const isLoading = categoryLoading || productsLoading;
+  // Mock products data
+  const mockProducts = Array(8).fill(0).map((_, i) => ({
+    id: i + 1,
+    name: `${categoryNames[categoryId % 5] || 'Product'} ${i + 1}`,
+    price: Math.floor(Math.random() * 1500) + 300,
+    wasteType: categoryNames[categoryId % 5] || 'Waste',
+    description: 'High-quality agricultural waste product for various uses',
+    isFavorite: i % 3 === 0
+  }));
 
   // Function to sort products based on sort option
-  const sortProducts = (productsToSort: Product[]) => {
+  const sortProducts = (productsToSort: any[]) => {
     const sorted = [...productsToSort];
     
     switch (sortOption) {
@@ -93,22 +47,14 @@ const CategoryDetail = () => {
     }
   };
 
-  // Filter products based on price range
-  const filteredProducts = products.filter(
+  // Filter and sort products
+  const filteredProducts = sortProducts(mockProducts).filter(
     product => product.price >= priceRange[0] && product.price <= priceRange[1]
   );
 
   const handlePriceRangeChange = (min: number, max: number) => {
     setPriceRange([min, max]);
   };
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8 flex justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -139,7 +85,7 @@ const CategoryDetail = () => {
           <div className="relative">
             <select
               value={sortOption}
-              onChange={(e) => setSortOption(e.target.value as SortOption)}
+              onChange={(e) => setSortOption(e.target.value)}
               className="appearance-none bg-white px-4 py-2 pr-8 rounded-md shadow-sm"
             >
               <option value="name-asc">Name: A to Z</option>
@@ -187,16 +133,52 @@ const CategoryDetail = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProducts.map(product => (
-            <ProductCard
+            <div 
               key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.price}
-              imageUrl={product.imageUrl}
-              wasteType={product.wasteType}
-              description={product.description}
-              isFavorite={product.isFavorite}
-            />
+              className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
+            >
+              <div 
+                className="h-48 bg-gray-200 relative"
+              >
+                <button 
+                  className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm"
+                >
+                  {product.isFavorite ? (
+                    <FaHeart className="text-red-500" />
+                  ) : (
+                    <FaRegHeart className="text-gray-400" />
+                  )}
+                </button>
+              </div>
+              
+              <div className="p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm bg-yellow-100 px-2 py-1 rounded-md text-gray-700">{product.wasteType}</span>
+                  <span className="text-green-600 font-bold">₹{product.price}</span>
+                </div>
+                
+                <h3 className="font-semibold text-gray-800 mt-2">{product.name}</h3>
+                
+                {product.description && (
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">{product.description}</p>
+                )}
+                
+                <div className="flex items-center justify-between mt-4">
+                  <button 
+                    className="bg-green-600 text-white px-3 py-2 rounded-md flex items-center gap-1 hover:bg-green-700 transition-colors"
+                  >
+                    <FaCartPlus />
+                    <span>Add to Cart</span>
+                  </button>
+                  
+                  <button 
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <FaShare />
+                  </button>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       )}

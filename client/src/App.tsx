@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Splash from "@/pages/Splash";
 import Login from "@/pages/Login";
-import NewHome from "@/pages/NewHome";
+import SimpleHome from "@/pages/SimpleHome";
 import Cart from "@/pages/Cart";
 import Categories from "@/pages/Categories";
 import CategoryDetail from "@/pages/CategoryDetail";
@@ -19,7 +19,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Splash} />
       <Route path="/login" component={Login} />
-      <Route path="/home" component={NewHome} />
+      <Route path="/home" component={SimpleHome} />
       <Route path="/cart" component={Cart} />
       <Route path="/categories" component={Categories} />
       <Route path="/categories/:id" component={CategoryDetail} />
