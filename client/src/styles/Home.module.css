@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css?family=Kavoon:0,400&display=swap');
+
+.container {
+  background: rgba(234, 231, 31, 0.3);
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.brandName {
+  color: #31b43e;
+  -webkit-text-stroke-width: 8px;
+  -webkit-text-stroke-color: #000;
+  box-sizing: border-box;
+  font-family: Kavoon, cursive;
+  font-size: 85px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  display: inline-block;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.imageContainer {
+  aspect-ratio: 449.72/500;
+  background-color: #d3d3d3;
+  width: 100%;
+  max-width: 449.715px;
+  height: auto;
+  position: relative;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .brandName {
+    font-size: 60px;
+    -webkit-text-stroke-width: 6px;
+  }
+  
+  .imageContainer {
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brandName {
+    font-size: 45px;
+    -webkit-text-stroke-width: 4px;
+  }
+  
+  .imageContainer {
+    max-width: 300px;
+  }
+}
