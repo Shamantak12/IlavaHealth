@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import styles from '../styles/Home.module.css';
 import ilavaLogo from '../assets/ilava-logo.svg';
-import { FaShoppingCart, FaHeart, FaSearch, FaMicrophone, FaBars, FaPlus, FaHome, FaList, FaUser } from 'react-icons/fa';
-import { MdRecycling, MdNaturePeople, MdCompost, MdOutlineEco } from 'react-icons/md';
+import { FaShoppingCart, FaHeart, FaSearch, FaMicrophone, FaBars, FaPlus, FaHome, FaList, FaUser, FaQrcode, FaCamera, FaTimes, FaArrowLeft, FaSync } from 'react-icons/fa';
+import { MdRecycling, MdNaturePeople, MdCompost, MdOutlineEco, MdPhotoCamera } from 'react-icons/md';
 import { GiWheat, GiPlantRoots, GiFruitTree } from 'react-icons/gi';
 import { useQuery } from '@tanstack/react-query';
+import Webcam from 'react-webcam';
 
 // Product type definition
 interface Product {
@@ -37,13 +38,33 @@ const sampleProducts: Product[] = [
   { id: 6, name: 'Vermicompost', price: 1500, imageUrl: '', wasteType: 'Organic Waste' },
 ];
 
+// Sample waste analysis recommendation data
+interface Recommendation {
+  id: number;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+}
+
+// Waste analyzer states
+enum WasteAnalyzerState {
+  CAMERA = 'camera',
+  ANALYZING = 'analyzing',
+  RESULTS = 'results'
+}
+
 export default function Home() {
   const [, setLocation] = useLocation();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isWasteAnalyzerOpen, setIsWasteAnalyzerOpen] = useState(false);
+  const [wasteAnalyzerState, setWasteAnalyzerState] = useState<WasteAnalyzerState>(WasteAnalyzerState.CAMERA);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [userType, setUserType] = useState<string>('');
   const [cartCount, setCartCount] = useState(0);
   const [favoritesCount, setFavoritesCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const webcamRef = useRef<Webcam>(null);
 
   // Get products (in real app, this would fetch from backend)
   const { data: products = sampleProducts, isLoading } = useQuery({
@@ -77,6 +98,59 @@ export default function Home() {
     e.preventDefault();
     console.log('Searching for:', searchTerm);
     // In a real app, we would search the API
+  };
+
+  const captureImage = () => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      setCapturedImage(imageSrc);
+      setWasteAnalyzerState(WasteAnalyzerState.ANALYZING);
+      
+      // Simulate API call for waste analysis
+      setTimeout(() => {
+        analyzeWasteImage(imageSrc);
+      }, 2000);
+    }
+  };
+
+  const analyzeWasteImage = (imageSrc: string | null) => {
+    // In a real app, this would call an API to analyze the image
+    // For demonstration, we'll simulate the analysis result
+    
+    // Sample recommendations based on common agricultural waste
+    const sampleRecommendations: Recommendation[] = [
+      {
+        id: 1,
+        title: 'Organic Compost',
+        description: 'Convert this plant waste into nutrient-rich compost.',
+        icon: <MdCompost className={styles.recommendationIcon} />
+      },
+      {
+        id: 2,
+        title: 'Biochar Production',
+        description: 'Process into biochar to improve soil quality.',
+        icon: <GiPlantRoots className={styles.recommendationIcon} />
+      },
+      {
+        id: 3,
+        title: 'Animal Feed',
+        description: 'This crop residue can be processed into animal feed.',
+        icon: <GiWheat className={styles.recommendationIcon} />
+      }
+    ];
+    
+    setRecommendations(sampleRecommendations);
+    setWasteAnalyzerState(WasteAnalyzerState.RESULTS);
+  };
+
+  const resetWasteAnalyzer = () => {
+    setCapturedImage(null);
+    setWasteAnalyzerState(WasteAnalyzerState.CAMERA);
+  };
+
+  const closeWasteAnalyzer = () => {
+    setIsWasteAnalyzerOpen(false);
+    resetWasteAnalyzer();
   };
 
   return (
@@ -172,6 +246,12 @@ export default function Home() {
           <FaList className={styles.navIcon} />
           <span className={styles.navText}>Categories</span>
         </div>
+        <div className={styles.navItem} onClick={() => setIsWasteAnalyzerOpen(true)}>
+          <div className={styles.scanButton}>
+            <FaQrcode className={styles.scanIcon} />
+          </div>
+          <span className={styles.navText}>Scan Waste</span>
+        </div>
         <div className={styles.navItem}>
           <FaShoppingCart className={styles.navIcon} />
           <span className={styles.navText}>Cart</span>
@@ -219,6 +299,80 @@ export default function Home() {
         className={`${styles.overlay} ${isDrawerOpen ? styles.overlayVisible : ''}`}
         onClick={toggleDrawer}
       />
+
+      {/* Waste Analyzer Modal */}
+      {isWasteAnalyzerOpen && (
+        <div className={styles.wasteAnalyzerModal}>
+          <div className={styles.wasteAnalyzerHeader}>
+            <button className={styles.closeButton} onClick={closeWasteAnalyzer}>
+              <FaTimes />
+            </button>
+            <h2 className={styles.wasteAnalyzerTitle}>
+              {wasteAnalyzerState === WasteAnalyzerState.CAMERA && 'Scan Agricultural Waste'}
+              {wasteAnalyzerState === WasteAnalyzerState.ANALYZING && 'Analyzing Your Waste'}
+              {wasteAnalyzerState === WasteAnalyzerState.RESULTS && 'Recommended Products'}
+            </h2>
+          </div>
+
+          {wasteAnalyzerState === WasteAnalyzerState.CAMERA && (
+            <div className={styles.cameraContainer}>
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                className={styles.webcam}
+                videoConstraints={{
+                  width: 720,
+                  height: 1280,
+                  facingMode: "environment"
+                }}
+              />
+              <div className={styles.captureBtnContainer}>
+                <div className={styles.captureBtn} onClick={captureImage}>
+                  <div className={styles.innerCaptureBtn} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {wasteAnalyzerState === WasteAnalyzerState.ANALYZING && (
+            <div className={styles.wasteAnalyzerResults}>
+              {capturedImage && (
+                <img src={capturedImage} alt="Captured waste" className={styles.wasteImage} />
+              )}
+              <div className={styles.loadingAnimation}>
+                <div style={{ animation: 'spin 1s linear infinite' }}>
+                  <FaSync size={32} style={{ color: '#31b43e' }} />
+                </div>
+                <p className={styles.loadingText}>Analyzing your agricultural waste...</p>
+              </div>
+            </div>
+          )}
+
+          {wasteAnalyzerState === WasteAnalyzerState.RESULTS && (
+            <div className={styles.wasteAnalyzerResults}>
+              {capturedImage && (
+                <img src={capturedImage} alt="Captured waste" className={styles.wasteImage} />
+              )}
+              <h3 className={styles.analysisTitle}>Recommended Products</h3>
+              <ul className={styles.recommendationsList}>
+                {recommendations.map((rec) => (
+                  <li key={rec.id} className={styles.recommendationItem}>
+                    {rec.icon}
+                    <div className={styles.recommendationContent}>
+                      <h4 className={styles.recommendationTitle}>{rec.title}</h4>
+                      <p className={styles.recommendationDescription}>{rec.description}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <button className={styles.tryAgainBtn} onClick={resetWasteAnalyzer}>
+                Scan Again
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
