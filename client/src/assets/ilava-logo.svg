@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="24" cy="24" r="24" fill="#FFDD00"/>
-  <path d="M12 16H18V32H12V16Z" fill="#2E7D32"/>
-  <path d="M21 16H27V32H21V16Z" fill="#2E7D32"/>
-  <path d="M30 16H36V32H30V16Z" fill="#2E7D32"/>
-  <path d="M14 28H16V30H14V28Z" fill="#FFFFFF"/>
-  <path d="M23 28H25V30H23V28Z" fill="#FFFFFF"/>
-  <path d="M32 28H34V30H32V28Z" fill="#FFFFFF"/>
+<svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <title>Ilava Logo</title>
+    <g id="Logo" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle id="Background" fill="#EAE71F" cx="100" cy="100" r="90"></circle>
+        <text id="ILAVA" font-family="Kavoon, Arial, sans-serif" font-size="40" font-weight="bold" letter-spacing="1" fill="#31B43E" stroke="#000000" stroke-width="4">
+            <tspan x="40" y="110">ILAVA</tspan>
+        </text>
+        <path d="M100,10 C48.48,10 10,48.48 10,100 C10,151.52 48.48,190 100,190 C151.52,190 190,151.52 190,100 C190,48.48 151.52,10 100,10 Z M100,180 C54.04,180 20,145.96 20,100 C20,54.04 54.04,20 100,20 C145.96,20 180,54.04 180,100 C180,145.96 145.96,180 100,180 Z" id="Circle-Border" fill="#31B43E"></path>
+        <path d="M155,100 C155,130.38 130.38,155 100,155 L100,165 C135.9,165 165,135.9 165,100 L155,100 Z" id="Leaf-Accent" fill="#31B43E"></path>
+        <path d="M100,45 C69.62,45 45,69.62 45,100 L35,100 C35,64.1 64.1,35 100,35 L100,45 Z" id="Leaf-Accent-2" fill="#31B43E"></path>
+    </g>
 </svg>
