@@ -9,6 +9,7 @@ import {
   ScrollView,
   StatusBar,
   FlatList,
+  Alert,
 } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../App';
@@ -67,6 +68,25 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     navigation.navigate('ScanWaste');
   };
 
+  const navigateToCart = () => {
+    // In a real app, this would navigate to the Cart screen
+    // For now, we'll show an alert since the Cart screen isn't implemented yet
+    Alert.alert(
+      'Cart',
+      'Your cart has ' + cartCount + ' items',
+      [{ text: 'OK' }]
+    );
+  };
+  
+  const navigateToFavorites = () => {
+    // In a real app, this would navigate to the Favorites screen
+    Alert.alert(
+      'Favorites',
+      'You have ' + favoritesCount + ' items in your favorites',
+      [{ text: 'OK' }]
+    );
+  };
+
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
@@ -110,7 +130,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
           <Text style={styles.brandName}>ILAVA</Text>
         </View>
         <View style={styles.actionIcons}>
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity style={styles.iconButton} onPress={navigateToFavorites}>
             <Icon name="heart" size={22} color="#444" />
             {favoritesCount > 0 && (
               <View style={styles.badge}>
@@ -118,7 +138,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
               </View>
             )}
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity style={styles.iconButton} onPress={navigateToCart}>
             <Icon name="shopping-cart" size={22} color="#444" />
             {cartCount > 0 && (
               <View style={styles.badge}>
@@ -206,7 +226,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
           </View>
           <Text style={styles.navText}>Scan Waste</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
+        <TouchableOpacity style={styles.navItem} onPress={navigateToCart}>
           <Icon name="shopping-cart" size={22} color="#666" />
           <Text style={styles.navText}>Cart</Text>
         </TouchableOpacity>

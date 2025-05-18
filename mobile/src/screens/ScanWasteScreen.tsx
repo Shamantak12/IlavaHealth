@@ -9,12 +9,14 @@ import {
   StatusBar,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../App';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { Camera, CameraType } from 'react-native-camera';
+import { analyzeWasteImage as analyzeImage, WasteAnalysisResult } from '../services/openai';
 
 type ScanWasteScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -45,6 +47,7 @@ const ScanWasteScreen: React.FC<Props> = ({ navigation }) => {
     AnalysisState.CAMERA,
   );
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [wasteType, setWasteType] = useState<string>('');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const cameraRef = useRef<Camera>(null);
 
@@ -60,44 +63,39 @@ const ScanWasteScreen: React.FC<Props> = ({ navigation }) => {
         setCapturedImage(data.uri);
         setAnalysisState(AnalysisState.ANALYZING);
         
-        // Simulate API call to analyze waste image
+        // Process the image for analysis
         setTimeout(() => {
-          analyzeWasteImage();
+          processWasteImage(data.base64 || '');
         }, 2000);
       } catch (error) {
         console.error('Error taking picture:', error);
+        Alert.alert(
+          'Camera Error',
+          'There was a problem capturing the image. Please try again.',
+          [{ text: 'OK' }]
+        );
+        setAnalysisState(AnalysisState.CAMERA);
       }
     }
   };
 
-  const analyzeWasteImage = () => {
-    // In a real app, this would call an AI API to analyze the image
-    // For demo purposes, we'll simulate the analysis result
-    
-    // Sample recommendations based on common agricultural waste
-    const sampleRecommendations: Recommendation[] = [
-      {
-        id: 1,
-        title: 'Organic Compost',
-        description: 'Convert this plant waste into nutrient-rich compost.',
-        iconName: 'compost',
-      },
-      {
-        id: 2,
-        title: 'Biochar Production',
-        description: 'Process into biochar to improve soil quality.',
-        iconName: 'grass',
-      },
-      {
-        id: 3,
-        title: 'Animal Feed',
-        description: 'This crop residue can be processed into animal feed.',
-        iconName: 'eco',
-      },
-    ];
-    
-    setRecommendations(sampleRecommendations);
-    setAnalysisState(AnalysisState.RESULTS);
+  const processWasteImage = async (base64Image: string) => {
+    try {
+      // If we have an API key, we'd call the real service
+      // For now, using mock implementation in the service
+      const result = await analyzeImage(base64Image);
+      setWasteType(result.wasteType);
+      setRecommendations(result.recommendations);
+      setAnalysisState(AnalysisState.RESULTS);
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+      Alert.alert(
+        'Analysis Error',
+        'Failed to analyze the waste image. Please try again.',
+        [{ text: 'OK' }]
+      );
+      setAnalysisState(AnalysisState.CAMERA);
+    }
   };
 
   const resetAnalysis = () => {
@@ -274,6 +272,26 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 15,
   },
+  wasteTypeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(49, 180, 62, 0.1)',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 20,
+    alignSelf: 'stretch',
+  },
+  wasteTypeLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginRight: 8,
+  },
+  wasteTypeValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#31b43e',
+  },
   analysisTitle: {
     fontSize: 18,
     fontWeight: '700',
@@ -306,16 +324,47 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
+  addToCartBtn: {
+    backgroundColor: '#31b43e',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 20,
+    marginBottom: 30,
+  },
   tryAgainBtn: {
     backgroundColor: '#31b43e',
     borderRadius: 8,
     paddingVertical: 12,
-    paddingHorizontal: 25,
-    marginTop: 20,
-    marginBottom: 30,
+    paddingHorizontal: 20,
+    flex: 1,
+    marginLeft: 10,
+    alignItems: 'center',
   },
   tryAgainBtnText: {
     color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  secondaryBtn: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    flex: 1,
+    marginRight: 10,
+    alignItems: 'center',
+  },
+  secondaryBtnText: {
+    color: '#333',
     fontSize: 16,
     fontWeight: '600',
   },
