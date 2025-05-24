@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, boolean, timestamp, integer } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, varchar, boolean, timestamp, integer, decimal } from 'drizzle-orm/pg-core';
 import { InferSelectModel, relations } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -14,6 +14,13 @@ export const users = pgTable('users', {
   fullName: varchar('full_name', { length: 100 }),
   profileImage: text('profile_image'),
   authProvider: varchar('auth_provider', { length: 20 }), // 'google', 'apple', 'email', 'phone'
+  // Farmer profile fields
+  farmerType: varchar('farmer_type', { length: 50 }), // 'horticulture', 'sericulture', etc.
+  location: text('location'),
+  farmingTypes: text('farming_types'), // JSON array of farming types
+  bio: text('bio'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
 // Products table
@@ -21,12 +28,48 @@ export const products = pgTable('products', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull(),
   description: text('description'),
-  price: integer('price').notNull(), // Price in cents
+  price: decimal('price', { precision: 10, scale: 2 }).notNull(),
   imageUrl: text('image_url'),
   category: varchar('category', { length: 50 }),
   quantity: integer('quantity').notNull().default(0),
+  unit: varchar('unit', { length: 20 }).notNull().default('kg'), // 'kg', 'quintal', 'tons'
   farmerId: integer('farmer_id').notNull(),
   wasteType: varchar('waste_type', { length: 50 }),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Waste scans table
+export const wasteScans = pgTable('waste_scans', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull(),
+  imageUrl: text('image_url').notNull(),
+  detectedWasteType: varchar('detected_waste_type', { length: 50 }),
+  confidence: decimal('confidence', { precision: 5, scale: 4 }), // ML confidence score
+  scanResults: text('scan_results'), // JSON with detailed analysis
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Orders table
+export const orders = pgTable('orders', {
+  id: serial('id').primaryKey(),
+  buyerId: integer('buyer_id').notNull(),
+  sellerId: integer('seller_id').notNull(),
+  totalAmount: decimal('total_amount', { precision: 10, scale: 2 }).notNull(),
+  status: varchar('status', { length: 20 }).notNull().default('pending'), // 'pending', 'confirmed', 'shipped', 'delivered', 'cancelled'
+  shippingAddress: text('shipping_address'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Order items table
+export const orderItems = pgTable('order_items', {
+  id: serial('id').primaryKey(),
+  orderId: integer('order_id').notNull(),
+  productId: integer('product_id').notNull(),
+  quantity: integer('quantity').notNull(),
+  price: decimal('price', { precision: 10, scale: 2 }).notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
@@ -75,11 +118,44 @@ export const favoritesRelations = relations(favorites, ({ one }) => ({
   }),
 }));
 
+export const wasteScansRelations = relations(wasteScans, ({ one }) => ({
+  user: one(users, {
+    fields: [wasteScans.userId],
+    references: [users.id],
+  }),
+}));
+
+export const ordersRelations = relations(orders, ({ one, many }) => ({
+  buyer: one(users, {
+    fields: [orders.buyerId],
+    references: [users.id],
+  }),
+  seller: one(users, {
+    fields: [orders.sellerId],
+    references: [users.id],
+  }),
+  orderItems: many(orderItems),
+}));
+
+export const orderItemsRelations = relations(orderItems, ({ one }) => ({
+  order: one(orders, {
+    fields: [orderItems.orderId],
+    references: [orders.id],
+  }),
+  product: one(products, {
+    fields: [orderItems.productId],
+    references: [products.id],
+  }),
+}));
+
 // Types
 export type User = InferSelectModel<typeof users>;
 export type Product = InferSelectModel<typeof products>;
 export type CartItem = InferSelectModel<typeof cartItems>;
 export type Favorite = InferSelectModel<typeof favorites>;
+export type WasteScan = InferSelectModel<typeof wasteScans>;
+export type Order = InferSelectModel<typeof orders>;
+export type OrderItem = InferSelectModel<typeof orderItems>;
 
 // Schemas for validation
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -91,6 +167,10 @@ export const insertUserSchema = createInsertSchema(users).pick({
   fullName: true,
   profileImage: true,
   authProvider: true,
+  farmerType: true,
+  location: true,
+  farmingTypes: true,
+  bio: true,
 });
 
 export const insertProductSchema = createInsertSchema(products).pick({
@@ -100,6 +180,7 @@ export const insertProductSchema = createInsertSchema(products).pick({
   imageUrl: true,
   category: true,
   quantity: true,
+  unit: true,
   farmerId: true,
   wasteType: true,
 });
@@ -115,8 +196,34 @@ export const insertFavoriteSchema = createInsertSchema(favorites).pick({
   productId: true,
 });
 
+export const insertWasteScanSchema = createInsertSchema(wasteScans).pick({
+  userId: true,
+  imageUrl: true,
+  detectedWasteType: true,
+  confidence: true,
+  scanResults: true,
+});
+
+export const insertOrderSchema = createInsertSchema(orders).pick({
+  buyerId: true,
+  sellerId: true,
+  totalAmount: true,
+  status: true,
+  shippingAddress: true,
+});
+
+export const insertOrderItemSchema = createInsertSchema(orderItems).pick({
+  orderId: true,
+  productId: true,
+  quantity: true,
+  price: true,
+});
+
 // Export types for insert operations
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
 export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
+export type InsertWasteScan = z.infer<typeof insertWasteScanSchema>;
+export type InsertOrder = z.infer<typeof insertOrderSchema>;
+export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
