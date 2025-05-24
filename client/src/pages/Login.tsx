@@ -96,8 +96,9 @@ export default function Login() {
   const handleEmailLogin = (data: EmailForm) => {
     console.log('Email login with:', data);
     // In a real app, we would call an API here
-    // For now, simulate successful login
-    setLocation('/home');
+    // For now, simulate successful login and redirect based on user type
+    const redirectPath = userType === 'farmer' ? '/farmer' : '/buyer';
+    setLocation(redirectPath);
   };
 
   const handlePhoneLogin = (data: PhoneForm) => {
@@ -109,22 +110,25 @@ export default function Login() {
   const handleOtpVerification = (data: OtpForm) => {
     console.log('OTP verification with:', data);
     // In a real app, we would verify OTP with an API
-    // For now, simulate successful verification
-    setLocation('/home');
+    // For now, simulate successful verification and redirect based on user type
+    const redirectPath = userType === 'farmer' ? '/farmer' : '/buyer';
+    setLocation(redirectPath);
   };
 
   const handleGoogleLogin = () => {
     console.log('Google login clicked');
     // In a real app, we would integrate with Google OAuth
-    // For now, simulate successful login
-    setLocation('/home');
+    // For now, simulate successful login and redirect based on user type
+    const redirectPath = userType === 'farmer' ? '/farmer' : '/buyer';
+    setLocation(redirectPath);
   };
 
   const handleAppleLogin = () => {
     console.log('Apple login clicked');
     // In a real app, we would integrate with Apple Sign In
-    // For now, simulate successful login
-    setLocation('/home');
+    // For now, simulate successful login and redirect based on user type
+    const redirectPath = userType === 'farmer' ? '/farmer' : '/buyer';
+    setLocation(redirectPath);
   };
 
   const renderLoginOptions = () => (
