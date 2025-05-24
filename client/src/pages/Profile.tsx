@@ -8,6 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
 import { 
   FaArrowLeft, 
   FaUser, 
@@ -17,7 +19,12 @@ import {
   FaTractor,
   FaEdit,
   FaSave,
-  FaTimes
+  FaTimes,
+  FaLock,
+  FaBell,
+  FaTrash,
+  FaEye,
+  FaEyeSlash
 } from 'react-icons/fa';
 import { useToast } from '@/hooks/use-toast';
 
@@ -36,6 +43,33 @@ export default function Profile() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Dialog states
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showPrivacySettings, setShowPrivacySettings] = useState(false);
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  
+  // Password change form
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  
+  // Settings states
+  const [privacySettings, setPrivacySettings] = useState({
+    profileVisible: true,
+    contactVisible: true,
+    locationVisible: true
+  });
+  
+  const [notificationSettings, setNotificationSettings] = useState({
+    orderUpdates: true,
+    newMessages: true,
+    marketingEmails: false,
+    priceAlerts: true
+  });
   
   const [profileData, setProfileData] = useState<ProfileData>({
     fullName: 'Rajesh Kumar',
@@ -332,22 +366,278 @@ export default function Profile() {
               <CardTitle>Account Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => setShowChangePassword(true)}
+              >
                 Change Password
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => setShowPrivacySettings(true)}
+              >
                 Privacy Settings
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => setShowNotificationSettings(true)}
+              >
                 Notification Preferences
               </Button>
-              <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start text-red-600 hover:text-red-700"
+                onClick={() => setShowDeleteAccount(true)}
+              >
                 Delete Account
               </Button>
             </CardContent>
           </Card>
         )}
+
+        {/* Sign Out Button */}
+        <Card className="border-red-200">
+          <CardContent className="p-4">
+            <Button 
+              variant="destructive" 
+              className="w-full"
+              onClick={() => {
+                localStorage.removeItem('userType');
+                setLocation('/');
+                toast({
+                  title: "Signed out successfully",
+                  description: "You have been logged out of your account.",
+                });
+              }}
+            >
+              Sign Out
+            </Button>
+          </CardContent>
+        </Card>
       </main>
+
+      {/* Change Password Dialog */}
+      <Dialog open={showChangePassword} onOpenChange={setShowChangePassword}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <FaLock className="h-5 w-5" />
+              <span>Change Password</span>
+            </DialogTitle>
+            <DialogDescription>
+              Update your password to keep your account secure
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="currentPassword">Current Password</Label>
+              <Input
+                id="currentPassword"
+                type="password"
+                value={passwordData.currentPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={passwordData.newPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={passwordData.confirmPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowChangePassword(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              toast({
+                title: "Password changed successfully",
+                description: "Your password has been updated.",
+              });
+              setShowChangePassword(false);
+            }}>
+              Update Password
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Privacy Settings Dialog */}
+      <Dialog open={showPrivacySettings} onOpenChange={setShowPrivacySettings}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <FaEye className="h-5 w-5" />
+              <span>Privacy Settings</span>
+            </DialogTitle>
+            <DialogDescription>
+              Control what information others can see
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="profileVisible">Profile Visible to Others</Label>
+              <Switch
+                id="profileVisible"
+                checked={privacySettings.profileVisible}
+                onCheckedChange={(checked) => 
+                  setPrivacySettings(prev => ({ ...prev, profileVisible: checked }))
+                }
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="contactVisible">Contact Information Visible</Label>
+              <Switch
+                id="contactVisible"
+                checked={privacySettings.contactVisible}
+                onCheckedChange={(checked) => 
+                  setPrivacySettings(prev => ({ ...prev, contactVisible: checked }))
+                }
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="locationVisible">Location Visible</Label>
+              <Switch
+                id="locationVisible"
+                checked={privacySettings.locationVisible}
+                onCheckedChange={(checked) => 
+                  setPrivacySettings(prev => ({ ...prev, locationVisible: checked }))
+                }
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => {
+              toast({
+                title: "Privacy settings updated",
+                description: "Your privacy preferences have been saved.",
+              });
+              setShowPrivacySettings(false);
+            }}>
+              Save Settings
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Notification Settings Dialog */}
+      <Dialog open={showNotificationSettings} onOpenChange={setShowNotificationSettings}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <FaBell className="h-5 w-5" />
+              <span>Notification Preferences</span>
+            </DialogTitle>
+            <DialogDescription>
+              Choose which notifications you want to receive
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="orderUpdates">Order Updates</Label>
+              <Switch
+                id="orderUpdates"
+                checked={notificationSettings.orderUpdates}
+                onCheckedChange={(checked) => 
+                  setNotificationSettings(prev => ({ ...prev, orderUpdates: checked }))
+                }
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="newMessages">New Messages</Label>
+              <Switch
+                id="newMessages"
+                checked={notificationSettings.newMessages}
+                onCheckedChange={(checked) => 
+                  setNotificationSettings(prev => ({ ...prev, newMessages: checked }))
+                }
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="marketingEmails">Marketing Emails</Label>
+              <Switch
+                id="marketingEmails"
+                checked={notificationSettings.marketingEmails}
+                onCheckedChange={(checked) => 
+                  setNotificationSettings(prev => ({ ...prev, marketingEmails: checked }))
+                }
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="priceAlerts">Price Alerts</Label>
+              <Switch
+                id="priceAlerts"
+                checked={notificationSettings.priceAlerts}
+                onCheckedChange={(checked) => 
+                  setNotificationSettings(prev => ({ ...prev, priceAlerts: checked }))
+                }
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => {
+              toast({
+                title: "Notification preferences updated",
+                description: "Your notification settings have been saved.",
+              });
+              setShowNotificationSettings(false);
+            }}>
+              Save Preferences
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Account Dialog */}
+      <Dialog open={showDeleteAccount} onOpenChange={setShowDeleteAccount}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2 text-red-600">
+              <FaTrash className="h-5 w-5" />
+              <span>Delete Account</span>
+            </DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. All your data will be permanently deleted.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="bg-red-50 p-4 rounded-lg">
+            <p className="text-sm text-red-700">
+              Are you sure you want to delete your account? This will remove all your listings, orders, and profile information.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteAccount(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={() => {
+              localStorage.removeItem('userType');
+              setLocation('/login');
+              toast({
+                title: "Account deleted",
+                description: "Your account has been permanently deleted.",
+                variant: "destructive",
+              });
+            }}>
+              Delete Account
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
