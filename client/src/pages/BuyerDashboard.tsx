@@ -50,6 +50,7 @@ export default function BuyerDashboard() {
   ];
 
   const featuredProducts: Product[] = [
+    // Compost Products
     {
       id: 1,
       name: 'Premium Rice Husk Compost',
@@ -62,6 +63,27 @@ export default function BuyerDashboard() {
     },
     {
       id: 2,
+      name: 'Vermicompost Premium',
+      price: '₹35/kg',
+      category: 'compost',
+      image: '/api/placeholder/200/200',
+      seller: 'Green Earth Farms',
+      rating: 4.9,
+      location: 'Karnataka'
+    },
+    {
+      id: 3,
+      name: 'Cow Dung Compost',
+      price: '₹20/kg',
+      category: 'compost',
+      image: '/api/placeholder/200/200',
+      seller: 'Dairy Fresh Farm',
+      rating: 4.7,
+      location: 'Gujarat'
+    },
+    // Crop Residues
+    {
+      id: 4,
       name: 'Organic Wheat Straw',
       price: '₹15/kg',
       category: 'crop-residues',
@@ -71,7 +93,28 @@ export default function BuyerDashboard() {
       location: 'Haryana'
     },
     {
-      id: 3,
+      id: 5,
+      name: 'Rice Husk Raw',
+      price: '₹12/kg',
+      category: 'crop-residues',
+      image: '/api/placeholder/200/200',
+      seller: 'Paddy Fields Co.',
+      rating: 4.4,
+      location: 'Andhra Pradesh'
+    },
+    {
+      id: 6,
+      name: 'Sugarcane Bagasse',
+      price: '₹18/kg',
+      category: 'crop-residues',
+      image: '/api/placeholder/200/200',
+      seller: 'Sweet Cane Farms',
+      rating: 4.5,
+      location: 'Maharashtra'
+    },
+    // Bio Fertilizers
+    {
+      id: 7,
       name: 'Bio Fertilizer Mix',
       price: '₹45/kg',
       category: 'bio-fertilizers',
@@ -81,7 +124,80 @@ export default function BuyerDashboard() {
       location: 'Uttar Pradesh'
     },
     {
-      id: 4,
+      id: 8,
+      name: 'Organic NPK Blend',
+      price: '₹55/kg',
+      category: 'bio-fertilizers',
+      image: '/api/placeholder/200/200',
+      seller: 'Nature Grow Co.',
+      rating: 4.8,
+      location: 'Tamil Nadu'
+    },
+    {
+      id: 9,
+      name: 'Phosphorous Rich Fertilizer',
+      price: '₹40/kg',
+      category: 'bio-fertilizers',
+      image: '/api/placeholder/200/200',
+      seller: 'Soil Science Labs',
+      rating: 4.6,
+      location: 'West Bengal'
+    },
+    // Plant Waste
+    {
+      id: 10,
+      name: 'Banana Leaf Waste',
+      price: '₹8/kg',
+      category: 'plant-waste',
+      image: '/api/placeholder/200/200',
+      seller: 'South India Farms',
+      rating: 4.5,
+      location: 'Tamil Nadu'
+    },
+    {
+      id: 11,
+      name: 'Coconut Coir',
+      price: '₹22/kg',
+      category: 'plant-waste',
+      image: '/api/placeholder/200/200',
+      seller: 'Coastal Agri Works',
+      rating: 4.7,
+      location: 'Kerala'
+    },
+    {
+      id: 12,
+      name: 'Dried Leaves Mix',
+      price: '₹10/kg',
+      category: 'plant-waste',
+      image: '/api/placeholder/200/200',
+      seller: 'Garden Fresh Co.',
+      rating: 4.3,
+      location: 'Himachal Pradesh'
+    },
+    // Fruit Waste
+    {
+      id: 13,
+      name: 'Orange Peel Compost',
+      price: '₹30/kg',
+      category: 'fruit-waste',
+      image: '/api/placeholder/200/200',
+      seller: 'Citrus Valley Farm',
+      rating: 4.6,
+      location: 'Nagpur'
+    },
+    {
+      id: 14,
+      name: 'Apple Pomace',
+      price: '₹28/kg',
+      category: 'fruit-waste',
+      image: '/api/placeholder/200/200',
+      seller: 'Hill Station Orchards',
+      rating: 4.7,
+      location: 'Himachal Pradesh'
+    },
+    // Recycled Products
+    {
+      id: 15,
       name: 'Recycled Plastic Planters',
       price: '₹120/piece',
       category: 'recycled',
@@ -89,6 +205,37 @@ export default function BuyerDashboard() {
       seller: 'Green Recyclers',
       rating: 4.5,
       location: 'Maharashtra'
+    },
+    {
+      id: 16,
+      name: 'Eco-Friendly Pots',
+      price: '₹85/piece',
+      category: 'recycled',
+      image: '/api/placeholder/200/200',
+      seller: 'Sustainable Solutions',
+      rating: 4.4,
+      location: 'Karnataka'
+    },
+    // Organic Waste
+    {
+      id: 17,
+      name: 'Mixed Organic Waste',
+      price: '₹16/kg',
+      category: 'organic-waste',
+      image: '/api/placeholder/200/200',
+      seller: 'Organic Circle Farm',
+      rating: 4.2,
+      location: 'Odisha'
+    },
+    {
+      id: 18,
+      name: 'Kitchen Waste Compost',
+      price: '₹24/kg',
+      category: 'organic-waste',
+      image: '/api/placeholder/200/200',
+      seller: 'Zero Waste Farm',
+      rating: 4.8,
+      location: 'Rajasthan'
     }
   ];
 

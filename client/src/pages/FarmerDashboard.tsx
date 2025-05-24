@@ -137,16 +137,16 @@ export default function FarmerDashboard() {
         </Card>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 stagger-animation">
           {quickStats.map((stat, index) => (
-            <Card key={index}>
+            <Card key={index} className="hover-lift transition-all duration-300">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">{stat.title}</p>
-                    <p className="text-2xl font-bold">{stat.value}</p>
+                    <p className="text-2xl font-bold animate-fadeIn">{stat.value}</p>
                   </div>
-                  <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                  <stat.icon className={`h-8 w-8 ${stat.color} animate-float`} />
                 </div>
               </CardContent>
             </Card>
