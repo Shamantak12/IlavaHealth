@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { registerRootComponent } from 'expo';
 import SplashScreen from './SplashScreen';
 import LoginScreen from './LoginScreen';
 import HomeScreen from './HomeScreen';
@@ -57,3 +58,6 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+// Register the App component for Expo Snack compatibility
+registerRootComponent(App);
