@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTheme } from './ThemeContext';
 
 interface ProfileScreenProps {
   navigation: {
@@ -23,10 +22,10 @@ interface ProfileScreenProps {
 }
 
 export default function ProfileScreen({ navigation }: ProfileScreenProps) {
-  const { colors, isDarkMode, toggleTheme } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [locationSharing, setLocationSharing] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
 
   const [profile, setProfile] = useState({
     name: 'Ravi Kumar',
@@ -48,8 +47,9 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
     { id: 'support', title: 'Customer Support', icon: 'help-circle-outline', screen: 'Support' },
     { id: 'settings', title: 'Settings', icon: 'settings-outline', screen: 'Settings' },
   ];
+
   const farmerMenuItems = [
-    { id: 'analytics', title: 'Sales Analytics', icon: 'stats-chart-outline', screen: 'Analytics' },
+    { id: 'analytics', title: 'Sales Analytics', icon: 'analytics-outline', screen: 'Analytics' },
     { id: 'inventory', title: 'Inventory', icon: 'cube-outline', screen: 'Inventory' },
     { id: 'earnings', title: 'Earnings Report', icon: 'trending-up-outline', screen: 'Earnings' },
   ];
@@ -264,11 +264,12 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
         <View style={styles.menuItemLeft}>
           <Ionicons name="moon-outline" size={24} color="#2C3E50" />
           <Text style={styles.menuItemText}>Dark Mode</Text>
-        </View>        <Switch
-          value={isDarkMode}
-          onValueChange={toggleTheme}
+        </View>
+        <Switch
+          value={darkMode}
+          onValueChange={setDarkMode}
           trackColor={{ false: '#ECF0F1', true: '#4CAF50' }}
-          thumbColor={isDarkMode ? '#FFFFFF' : '#BDC3C7'}
+          thumbColor={darkMode ? '#FFFFFF' : '#BDC3C7'}
         />
       </View>
     </View>
@@ -292,8 +293,9 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
       </TouchableOpacity>
     </View>
   );
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={styles.container}>
       {renderHeader()}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {renderProfileCard()}

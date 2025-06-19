@@ -47,10 +47,11 @@ export default function FarmerDashboardScreen({ navigation }: any) {
       color: '#FF9800', 
       description: 'Convert waste to income',
       onPress: () => navigation.navigate('SellWaste')
-    },    { 
+    },
+    { 
       id: 'analytics', 
       name: 'Analytics', 
-      icon: 'chart-line', 
+      icon: 'analytics', 
       color: '#9C27B0', 
       description: 'View performance',
       onPress: () => navigation.navigate('Analytics')
